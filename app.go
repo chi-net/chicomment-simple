@@ -24,18 +24,25 @@ type comments struct {
 	UA string // 评论ua
 }
 
+
 func main() {
-  //读取文件
+	
+	// configure:
+	CorsSite := "*"
+  
+	//读取文件
   r := gin.Default()
   r.GET("/", func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", CorsSite)
 		bytes, e := ioutil.ReadFile("commentdata.json")
 		if e != nil {
 			// ioutil.WriteFile("commentdata.json", []byte(""), 666)
 			c.JSON(http.StatusOK, e)
 		}
-    c.JSON(http.StatusOK, string(bytes))
+    c.String(http.StatusOK, string(bytes))
   })
 	r.POST("/", func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", CorsSite)
 		u := comments{}
 		u.Email = c.PostForm("email")
 		u.Content = c.PostForm("content")
@@ -79,6 +86,14 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{
 			"status": 200,
     })
+	})
+
+	r.OPTIONS("/", func (c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", CorsSite)
+		c.Writer.Header().Set("Access-Control-Allow-Methods","GET,POST,OPTIONS,PUT,DELETE")
+		c.Writer.Header().Set("Access-Control-Allow-Headers","*")
+		c.Writer.Header().Set("Access-Control-Max-Age","1728000")
+		c.String(204, "")
 	})
   r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
